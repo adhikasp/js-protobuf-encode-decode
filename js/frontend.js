@@ -17,19 +17,18 @@
         updateProto();
     });
 
-    function toUint8Array(hexString) {
-        return new Uint8Array(hexString.match(/\w{2}/g).map(function(byte) {
-            return parseInt(byte, 16);
-        }));
+    function toUint8Array(base64String) {
+        var binary_string = window.atob(base64String);
+        var len = binary_string.length;
+        var bytes = new Uint8Array(len);
+        for (var i = 0; i < len; i++) {
+            bytes[i] = binary_string.charCodeAt(i);
+        }
+        return bytes;
     }
 
     function fromUint8Array(buffer) {
-        var first = true
-        return buffer.reduce(function(str, byte) {
-            var space = first ? '' : ' ';
-            first = false;
-            return str + space + byte.toString(16).padStart(2, '0').toUpperCase();
-        }, '');
+        return btoa(String.fromCharCode.apply(null, buffer));
     }
 
     function decode() {
@@ -67,7 +66,7 @@
             if (err) throw err;
 
             var buffer = message.encode(payload).finish()
-            encoded.value = '<' + fromUint8Array(buffer) + '>';
+            encoded.value = + fromUint8Array(buffer);
         } catch (e) {
             encoded.value = "Error:\n" + e.toString();
             console.error(e);
